@@ -1,0 +1,38 @@
+# modules Node
+node_modules/
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# fichiers temporaires
+tmp/
+temp/
+
+# cache
+.cache/
+.npm/
+
+# fichiers système
+.DS_Store
+Thumbs.db
+
+# variables d'environnement
+.env
+
+# build / dist
+dist/
+build/
+
+# coverage tests
+coverage/
+
+# fichiers IDE
+.vscode/
+.idea/
+
+# fichiers OS
+*.swp

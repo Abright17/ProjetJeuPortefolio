@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Mon jeu</title>
+    <script src="librairie/easeljs-0.8.2.min.js"></script>
+    <script src="librairie/MultiNode.js"></script>
+    <script defer src="App.js"></script>
+    <script src="Joueur.js"></script>
+    <script src="Legume.js"></script>
+    <script src="Taupe.js"></script>
+    <script src="ArrierePlan.js"></script>
+    <style>
+      html{overflow: hidden; background-color:red;}
+      #dessin{background-color:white;}
+      body{overflow: hidden; margin:0;padding:0;}
+      #formulaire-jeu {
+       position: absolute;
+       top : 0;
+       left: 0;
+       display: none;s
+       }
+    </style>
+</head>
+<body>
+  <canvas id="dessin" width="800" height="500"></canvas>
+    <form id="formulaire-authentification">
+        <fieldset>
+            <lable>Pseudonyme</lable>
+            <input type="text" id="champ-pseudonyme"/>
+            <input type="submit" value="Authentification" id="bouton-authentification"/>
+        </fieldset>
+    </form>
+    <form id="formulaire-jeu">
+        <fieldset>
+            <legend id="information-joueur">legumes plantés de {nom-joueur}</legend>
+            <input type="text" id="champ-point-de-vie" value=""/>
+        </fieldset>
+        <fieldset >
+            <legend id="information-autre-joueur">legumes plantés de {nom-autre-joueur}</legend>
+            <input type="text" id="champ-point-de-vie-autre-joueur" value=""/>
+        </fieldset>
+    </form>
+</body>
+</html>
