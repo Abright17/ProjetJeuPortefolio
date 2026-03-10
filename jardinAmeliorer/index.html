@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Jardin multijoueur</title>
+
+  <script src="librairie/easeljs-0.8.2.min.js"></script>
+  <script src="librairie/MultiNode.js"></script>
+
+  <script src="Joueur.js"></script>
+  <script src="Legume.js"></script>
+  <script src="Taupe.js"></script>
+  <script src="ArrierePlan.js"></script>
+  <script defer src="App.js"></script>
+
+  <style>
+    *{
+      box-sizing:border-box;
+    }
+
+    html,body{
+      margin:0;
+      padding:0;
+      overflow:hidden;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#0f2d12 0%, #1e4b24 40%, #2f6b2f 100%);
+      color:white;
+    }
+
+    #dessin{
+      display:none;
+      width:100vw;
+      height:100vh;
+      background:#d8f5d0;
+    }
+
+    .ecran-centre{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:20;
+      padding:20px;
+      background:radial-gradient(circle at top, rgba(255,255,255,0.12), rgba(0,0,0,0.45));
+    }
+
+    .carte-auth{
+      width:min(440px, 95vw);
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.25);
+      border-radius:22px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 20px 40px rgba(0,0,0,0.30);
+      padding:28px;
+    }
+
+    .titre-jeu{
+      margin:0 0 8px 0;
+      font-size:2rem;
+      text-align:center;
+      color:#f7ff9c;
+    }
+
+    .sous-titre{
+      margin:0 0 22px 0;
+      text-align:center;
+      color:#eefbe7;
+      opacity:0.95;
+    }
+
+    #formulaire-authentification fieldset,
+    #formulaire-jeu fieldset{
+      border:none;
+      margin:0;
+      padding:0;
+    }
+
+    .champ-groupe{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:14px;
+    }
+
+    .champ-groupe label{
+      font-weight:bold;
+      color:#fff7cf;
+    }
+
+    .champ-groupe input{
+      height:46px;
+      border:none;
+      border-radius:12px;
+      padding:0 14px;
+      font-size:1rem;
+      outline:none;
+    }
+
+    .bouton-principal{
+      width:100%;
+      height:48px;
+      border:none;
+      border-radius:12px;
+      font-weight:bold;
+      font-size:1rem;
+      cursor:pointer;
+      background:linear-gradient(90deg,#ffe66d,#ffd43b);
+      color:#244d16;
+      transition:transform .15s ease, box-shadow .15s ease;
+      box-shadow:0 10px 20px rgba(0,0,0,0.18);
+    }
+
+    .bouton-principal:hover{
+      transform:translateY(-2px);
+    }
+
+    #formulaire-jeu{
+      display:none;
+      position:fixed;
+      top:16px;
+      left:16px;
+      right:16px;
+      z-index:15;
+      pointer-events:none;
+    }
+
+    .hud{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    .carte-hud{
+      min-width:240px;
+      background:rgba(20, 45, 20, 0.42);
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:18px;
+      padding:14px 16px;
+      box-shadow:0 10px 20px rgba(0,0,0,0.16);
+      backdrop-filter:blur(4px);
+    }
+
+    .carte-hud h3{
+      margin:0 0 8px 0;
+      font-size:1rem;
+      color:#fff4aa;
+    }
+
+    .stat{
+      margin:4px 0;
+      font-size:0.95rem;
+    }
+
+    .grand-score{
+      font-size:1.8rem;
+      font-weight:bold;
+      color:#ffffff;
+    }
+
+    .petite-aide{
+      margin-top:8px;
+      font-size:0.85rem;
+      opacity:0.9;
+    }
+
+    .champ-cache{
+      display:none;
+    }
+
+    .bounce-titre{
+      animation:bounceTitre 0.8s ease;
+    }
+
+    @keyframes bounceTitre{
+      0%{
+        transform:scale(0.5);
+        opacity:0;
+      }
+      50%{
+        transform:scale(1.18);
+        opacity:1;
+      }
+      70%{
+        transform:scale(0.95);
+      }
+      100%{
+        transform:scale(1);
+      }
+    }
+
+    #message-central{
+      position:fixed;
+      left:50%;
+      top:95px;
+      transform:translateX(-50%);
+      z-index:40;
+      display:none;
+      padding:12px 20px;
+      border-radius:14px;
+      background:rgba(0,0,0,0.55);
+      color:white;
+      font-weight:bold;
+      font-family:Arial, Helvetica, sans-serif;
+      box-shadow:0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    #ecran-fin{
+      position:fixed;
+      inset:0;
+      z-index:30;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,0.62);
+    }
+
+    .carte-fin{
+      width:min(500px, 95vw);
+      background:white;
+      color:#1c2a1c;
+      border-radius:24px;
+      padding:30px;
+      text-align:center;
+      box-shadow:0 24px 50px rgba(0,0,0,0.35);
+      animation:zoomVictoire 0.5s ease;
+    }
+
+    .carte-fin h2{
+      margin-top:0;
+      font-size:2rem;
+    }
+
+    .carte-fin p{
+      margin:10px 0;
+      font-size:1rem;
+    }
+
+    .victoire{
+      color:#2e7d32;
+    }
+
+    .defaite{
+      color:#c62828;
+    }
+
+    @keyframes zoomVictoire{
+      0%{
+        transform:scale(0.7);
+        opacity:0;
+      }
+      100%{
+        transform:scale(1);
+        opacity:1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="dessin" width="800" height="500"></canvas>
+
+  <div id="zone-auth" class="ecran-centre">
+    <form id="formulaire-authentification" class="carte-auth">
+      <fieldset>
+        <h1 class="titre-jeu">Jardin multijoueur</h1>
+        <p class="sous-titre">Plante des légumes avant ton adversaire et évite la taupe.</p>
+
+        <div class="champ-groupe">
+          <label for="champ-pseudonyme">Pseudonyme</label>
+          <input type="text" id="champ-pseudonyme" placeholder="Entre ton nom" required />
+        </div>
+
+        <input type="submit" value="Entrer dans la partie" id="bouton-authentification" class="bouton-principal" />
+      </fieldset>
+    </form>
+  </div>
+
+  <form id="formulaire-jeu">
+    <div class="hud">
+      <fieldset class="carte-hud">
+        <h3 id="information-joueur">Joueur : {nom-joueur}</h3>
+        <div class="stat">Légumes plantés</div>
+        <div class="grand-score" id="score-joueur-affichage">0</div>
+        <input type="text" id="champ-point-de-vie" class="champ-cache" value="" />
+        <div class="petite-aide">Déplacement : flèches • Planter : P</div>
+      </fieldset>
+
+    </div>
+  </form>
+
+  <
+</body>
+</html>
