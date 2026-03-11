@@ -248,7 +248,27 @@ class App {
     }
   }
 
+  augmenterNombreLegumeJoueur(pseudonyme, verifierVictoire = true) {
+    if (!this.listeJoueur[pseudonyme]) return;
 
+    this.listeJoueur[pseudonyme].pointLegume += 1;
+    this.mettreAJourHUD();
+
+    if (verifierVictoire) {
+      this.verifierFinPartie();
+    }
+  }
+
+  perdreNombreLegumeJoueur(pseudonyme) {
+    if (!this.listeJoueur[pseudonyme]) return;
+
+    this.listeJoueur[pseudonyme].pointLegume = Math.max(
+      0,
+      this.listeJoueur[pseudonyme].pointLegume - 1
+    );
+
+    this.mettreAJourHUD();
+  }
 
   boucler(evenementtick) {
     if (
@@ -534,7 +554,21 @@ class App {
   }
 }
 
- 
+  verifierFinPartie() {
+    if (this.partieTerminee) return;
+
+    const scoreJoueur = this.listeJoueur[this.pseudonymeJoueur]?.pointLegume ?? 0;
+    const scoreAutre = this.listeJoueur[this.pseudonymeAutreJoueur]?.pointLegume ?? 0;
+
+    if (scoreJoueur >= App.OBJECTIF_VICTOIRE) {
+      this.envoyerFinPartie(this.pseudonymeJoueur, this.pseudonymeAutreJoueur);
+      return;
+    }
+
+    if (scoreAutre >= App.OBJECTIF_VICTOIRE) {
+      this.envoyerFinPartie(this.pseudonymeAutreJoueur, this.pseudonymeJoueur);
+    }
+  }
 
   envoyerFinPartie(gagnant, perdant) {
     const message = { gagnant, perdant };
