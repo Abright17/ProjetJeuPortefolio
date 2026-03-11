@@ -248,7 +248,27 @@ class App {
     }
   }
 
+  augmenterNombreLegumeJoueur(pseudonyme, verifierVictoire = true) {
+    if (!this.listeJoueur[pseudonyme]) return;
 
+    this.listeJoueur[pseudonyme].pointLegume += 1;
+    this.mettreAJourHUD();
+
+    if (verifierVictoire) {
+      this.verifierFinPartie();
+    }
+  }
+
+  perdreNombreLegumeJoueur(pseudonyme) {
+    if (!this.listeJoueur[pseudonyme]) return;
+
+    this.listeJoueur[pseudonyme].pointLegume = Math.max(
+      0,
+      this.listeJoueur[pseudonyme].pointLegume - 1
+    );
+
+    this.mettreAJourHUD();
+  }
 
   boucler(evenementtick) {
     if (
@@ -465,7 +485,90 @@ class App {
     return this.legumesBleu.filter((legume) => legume && legume.bitmap);
   }
 
+  obtenirTousLesLegumesValides() {
+    return this.legumesRose
+      .concat(this.legumesBleu)
+      .filter((legume) => legume && legume.bitmap);
+  }
 
+  creerBonusSoleil() {
+    if (this.bonusSoleil || !this.estCharge || this.partieTerminee) return;
+
+    this.bonusSoleil = new createjs.Shape();
+    this.bonusSoleil.graphics
+      .beginFill("#ffd43b")
+      .drawCircle(0, 0, 20)
+      .endFill();
+
+    this.bonusSoleil.x = 120 + Math.random() * (this.scene.largeur - 240);
+    this.bonusSoleil.y = 120 + Math.random() * (this.scene.hauteur - 240);
+    this.bonusSoleil.alpha = 0.85;
+    this.bonusSoleil.scaleX = 1;
+    this.bonusSoleil.scaleY = 1;
+
+    this.scene.addChild(this.bonusSoleil);
+
+    createjs.Tween.removeTweens(this.bonusSoleil);
+    createjs.Tween.get(this.bonusSoleil, { loop: true })
+      .to({ scaleX: 1.25, scaleY: 1.25, alpha: 1 }, 450, createjs.Ease.sineInOut)
+      .to({ scaleX: 1, scaleY: 1, alpha: 0.8 }, 450, createjs.Ease.sineInOut);
+
+    this.etatBonusAffichage.textContent = "Bonus : soleil disponible";
+    this.afficherMessageCentral("Un bonus soleil est apparu");
+  }
+
+  supprimerBonusSoleil() {
+    if (!this.bonusSoleil) return;
+
+    createjs.Tween.removeTweens(this.bonusSoleil);
+    this.scene.removeChild(this.bonusSoleil);
+    this.bonusSoleil = null;
+    this.etatBonusAffichage.textContent = "Bonus : aucun";
+  }
+
+ mettreAJourBonus(secondeEcoulee) {
+  if (this.partieTerminee) return;
+
+  this.tempsBonus += secondeEcoulee;
+
+  if (this.tempsBonus >= 30 && !this.bonusSoleil) {
+    this.tempsBonus = 0;
+    this.creerBonusSoleil();
+  }
+
+  if (!this.bonusSoleil) return;
+
+  const joueurActuel = this.listeJoueur[this.pseudonymeJoueur]?.objet;
+  if (!joueurActuel || !joueurActuel.sprite) return;
+
+  const dx = joueurActuel.sprite.x - this.bonusSoleil.x;
+  const dy = joueurActuel.sprite.y - this.bonusSoleil.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance <= 110) {
+    this.augmenterNombreLegumeJoueur(this.pseudonymeJoueur);
+    this.afficherMessageCentral("Bonus soleil : +1 légume");
+    this.supprimerBonusSoleil();
+    this.tempsBonus = 0;
+    this.scene.update();
+  }
+}
+
+  verifierFinPartie() {
+    if (this.partieTerminee) return;
+
+    const scoreJoueur = this.listeJoueur[this.pseudonymeJoueur]?.pointLegume ?? 0;
+    const scoreAutre = this.listeJoueur[this.pseudonymeAutreJoueur]?.pointLegume ?? 0;
+
+    if (scoreJoueur >= App.OBJECTIF_VICTOIRE) {
+      this.envoyerFinPartie(this.pseudonymeJoueur, this.pseudonymeAutreJoueur);
+      return;
+    }
+
+    if (scoreAutre >= App.OBJECTIF_VICTOIRE) {
+      this.envoyerFinPartie(this.pseudonymeAutreJoueur, this.pseudonymeJoueur);
+    }
+  }
 
   envoyerFinPartie(gagnant, perdant) {
     const message = { gagnant, perdant };
@@ -518,7 +621,7 @@ class App {
     return true;
   }
 
-
+  
 
 App.NOMBRE_JOUEUR_REQUIS = 2;
 App.NOMBRE_LEGUME_PLANTE = 0;

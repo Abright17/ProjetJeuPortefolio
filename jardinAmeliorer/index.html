@@ -5,7 +5,6 @@
   <title>Jardin multijoueur</title>
 
   <script src="librairie/easeljs-0.8.2.min.js"></script>
-  <script src="librairie/tweenjs.min.js"></script>
   <script src="librairie/MultiNode.js"></script>
 
   <script src="Joueur.js"></script>
@@ -288,9 +287,33 @@
         <div class="petite-aide">Déplacement : flèches • Planter : P</div>
       </fieldset>
 
+      <fieldset class="carte-hud">
+        <h3 id="information-autre-joueur">Adversaire : {nom-autre-joueur}</h3>
+        <div class="stat">Légumes plantés</div>
+        <div class="grand-score" id="score-autre-joueur-affichage">0</div>
+        <input type="text" id="champ-point-de-vie-autre-joueur" class="champ-cache" value="" />
+        <div class="petite-aide" id="objectif-partie">Objectif : 5 légumes pour gagner</div>
+      </fieldset>
+
+      <fieldset class="carte-hud">
+        <h3>Statistiques locales</h3>
+        <div class="stat" id="meilleur-score">Meilleur score : 0</div>
+        <div class="stat" id="nb-victoires">Victoires : 0</div>
+        <div class="stat" id="etat-partie">État : en attente…</div>
+        <div class="stat" id="etat-bonus">Bonus : aucun</div>
+      </fieldset>
     </div>
   </form>
 
-  <
+  <div id="message-central"></div>
+
+  <div id="ecran-fin">
+    <div class="carte-fin">
+      <h2 id="titre-fin">Fin de partie</h2>
+      <p id="message-fin"></p>
+      <p id="resume-fin"></p>
+      <button id="bouton-rejouer" class="bouton-principal" type="button">Recharger la partie</button>
+    </div>
+  </div>
 </body>
 </html>
