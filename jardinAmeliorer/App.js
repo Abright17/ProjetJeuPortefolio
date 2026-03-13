@@ -517,6 +517,42 @@ class App {
     this.afficherMessageCentral("Un bonus soleil est apparu");
   }
 
+  supprimerBonusSoleil() {
+    if (!this.bonusSoleil) return;
+
+    createjs.Tween.removeTweens(this.bonusSoleil);
+    this.scene.removeChild(this.bonusSoleil);
+    this.bonusSoleil = null;
+    this.etatBonusAffichage.textContent = "Bonus : aucun";
+  }
+
+ mettreAJourBonus(secondeEcoulee) {
+  if (this.partieTerminee) return;
+
+  this.tempsBonus += secondeEcoulee;
+
+  if (this.tempsBonus >= 30 && !this.bonusSoleil) {
+    this.tempsBonus = 0;
+    this.creerBonusSoleil();
+  }
+
+  if (!this.bonusSoleil) return;
+
+  const joueurActuel = this.listeJoueur[this.pseudonymeJoueur]?.objet;
+  if (!joueurActuel || !joueurActuel.sprite) return;
+
+  const dx = joueurActuel.sprite.x - this.bonusSoleil.x;
+  const dy = joueurActuel.sprite.y - this.bonusSoleil.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance <= 110) {
+    this.augmenterNombreLegumeJoueur(this.pseudonymeJoueur);
+    this.afficherMessageCentral("Bonus soleil : +1 légume");
+    this.supprimerBonusSoleil();
+    this.tempsBonus = 0;
+    this.scene.update();
+  }
+}
 
   verifierFinPartie() {
     if (this.partieTerminee) return;
