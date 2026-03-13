@@ -621,7 +621,48 @@ class App {
     return true;
   }
 
-  
+  creerConfettisVictoire() {
+    if (!this.conteneurConfettis) return;
+
+    this.conteneurConfettis.innerHTML = "";
+
+    for (let i = 0; i < 30; i++) {
+      const confetti = document.createElement("div");
+      confetti.style.position = "absolute";
+      confetti.style.width = "10px";
+      confetti.style.height = "18px";
+      confetti.style.left = Math.random() * 100 + "%";
+      confetti.style.top = "-30px";
+      confetti.style.opacity = "0.95";
+      confetti.style.borderRadius = "4px";
+      confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+      const couleurs = ["#ffd43b", "#ff6b6b", "#51cf66", "#4dabf7", "#f783ac"];
+      confetti.style.background = couleurs[Math.floor(Math.random() * couleurs.length)];
+
+      confetti.animate(
+        [
+          { transform: "translateY(0px) rotate(0deg)", opacity: 1 },
+          { transform: `translateY(${window.innerHeight + 80}px) rotate(${360 + Math.random() * 360}deg)`, opacity: 1 }
+        ],
+        {
+          duration: 1800 + Math.random() * 1000,
+          delay: Math.random() * 500,
+          iterations: 1,
+          easing: "ease-in"
+        }
+      );
+
+      this.conteneurConfettis.appendChild(confetti);
+
+      setTimeout(() => {
+        if (confetti.parentNode) {
+          confetti.parentNode.removeChild(confetti);
+        }
+      }, 3200);
+    }
+  }
+}
 
 App.NOMBRE_JOUEUR_REQUIS = 2;
 App.NOMBRE_LEGUME_PLANTE = 0;
