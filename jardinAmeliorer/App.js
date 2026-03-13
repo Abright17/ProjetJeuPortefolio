@@ -474,8 +474,100 @@ class App {
     this.afficherMessageCentral("La taupe a mangé un légume");
   }
 
+  obtenirLegumesDuPseudonyme(pseudonyme) {
+    const joueur = this.listeJoueur[pseudonyme]?.objet;
+    if (!joueur) return [];
+
+    if (joueur.type === Joueur.TYPE.ROSE) {
+      return this.legumesRose.filter((legume) => legume && legume.bitmap);
+    }
+
+    return this.legumesBleu.filter((legume) => legume && legume.bitmap);
+  }
+
+  obtenirTousLesLegumesValides() {
+    return this.legumesRose
+      .concat(this.legumesBleu)
+      .filter((legume) => legume && legume.bitmap);
+  }
+
+  creerBonusSoleil() {
+    if (this.bonusSoleil || !this.estCharge || this.partieTerminee) return;
+
+    this.bonusSoleil = new createjs.Shape();
+    this.bonusSoleil.graphics
+      .beginFill("#ffd43b")
+      .drawCircle(0, 0, 20)
+      .endFill();
+  }
 
 
+  verifierFinPartie() {
+    if (this.partieTerminee) return;
+
+    const scoreJoueur = this.listeJoueur[this.pseudonymeJoueur]?.pointLegume ?? 0;
+    const scoreAutre = this.listeJoueur[this.pseudonymeAutreJoueur]?.pointLegume ?? 0;
+
+    if (scoreJoueur >= App.OBJECTIF_VICTOIRE) {
+      this.envoyerFinPartie(this.pseudonymeJoueur, this.pseudonymeAutreJoueur);
+      return;
+    }
+
+    if (scoreAutre >= App.OBJECTIF_VICTOIRE) {
+      this.envoyerFinPartie(this.pseudonymeAutreJoueur, this.pseudonymeJoueur);
+    }
+  }
+
+  envoyerFinPartie(gagnant, perdant) {
+    const message = { gagnant, perdant };
+    this.multiNode.posterVariableTextuelle(App.MESSAGE.FIN_PARTIE, JSON.stringify(message));
+  }
+
+  terminerPartie(gagnant, perdant) {
+    if (this.partieTerminee) return;
+
+    this.partieTerminee = true;
+    this.etatPartieAffichage.textContent = "État : partie terminée";
+    this.supprimerBonusSoleil();
+
+    const scoreJoueur = this.listeJoueur[this.pseudonymeJoueur]?.pointLegume ?? 0;
+    const scoreAutre = this.listeJoueur[this.pseudonymeAutreJoueur]?.pointLegume ?? 0;
+
+    const joueurGagne = gagnant === this.pseudonymeJoueur;
+
+    if (joueurGagne) {
+      this.titreFin.textContent = "Victoire";
+      this.titreFin.className = "victoire bounce-titre";
+      this.messageFin.textContent = `Bravo ${this.pseudonymeJoueur}, tu as gagné la partie.`;
+      this.statsLocal.nbVictoires += 1;
+      this.creerConfettisVictoire();
+    } else {
+      this.titreFin.textContent = "Défaite";
+      this.titreFin.className = "defaite bounce-titre";
+      this.messageFin.textContent = `Dommage, ${gagnant} a gagné cette partie.`;
+    }
+
+    this.statsLocal.meilleurScore = Math.max(this.statsLocal.meilleurScore, scoreJoueur);
+    this.sauvegarderStatistiquesLocales();
+    this.mettreAJourStatsLocalesAffichage();
+
+    this.resumeFin.textContent =
+      `Score final : ${this.pseudonymeJoueur} ${scoreJoueur} - ${this.pseudonymeAutreJoueur} ${scoreAutre}`;
+
+    this.ecranFin.style.display = "flex";
+  }
+
+  testerCollisionRectangle(rectangleA, rectangleB) {
+    if (
+      rectangleA.x >= rectangleB.x + rectangleB.largeur ||
+      rectangleA.x + rectangleA.largeur <= rectangleB.x ||
+      rectangleA.y >= rectangleB.y + rectangleB.hauteur ||
+      rectangleA.y + rectangleA.hauteur <= rectangleB.y
+    ) {
+      return false;
+    }
+    return true;
+  }
 
   
 
