@@ -499,6 +499,22 @@ class App {
       .beginFill("#ffd43b")
       .drawCircle(0, 0, 20)
       .endFill();
+
+    this.bonusSoleil.x = 120 + Math.random() * (this.scene.largeur - 240);
+    this.bonusSoleil.y = 120 + Math.random() * (this.scene.hauteur - 240);
+    this.bonusSoleil.alpha = 0.85;
+    this.bonusSoleil.scaleX = 1;
+    this.bonusSoleil.scaleY = 1;
+
+    this.scene.addChild(this.bonusSoleil);
+
+    createjs.Tween.removeTweens(this.bonusSoleil);
+    createjs.Tween.get(this.bonusSoleil, { loop: true })
+      .to({ scaleX: 1.25, scaleY: 1.25, alpha: 1 }, 450, createjs.Ease.sineInOut)
+      .to({ scaleX: 1, scaleY: 1, alpha: 0.8 }, 450, createjs.Ease.sineInOut);
+
+    this.etatBonusAffichage.textContent = "Bonus : soleil disponible";
+    this.afficherMessageCentral("Un bonus soleil est apparu");
   }
 
 
